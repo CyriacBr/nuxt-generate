@@ -1,0 +1,21 @@
+{
+  "name": "nuxt-generate",
+  "version": "0.0.0",
+  "description": "Generate standard nuxt files",
+  "main": "script.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "CyriacBr",
+  "license": "MIT",
+  "devDependencies": {
+    "plop": "^2.2.0"
+  },
+  "dependencies": {
+    "node-plop": "^0.17.3"
+  },
+  "bin": {
+    "nuxt-generate": "script.js"
+  },
+  "preferGlobal": true
+}
