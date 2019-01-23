@@ -7,9 +7,9 @@ It is based on [`plop`](https://github.com/amwmedia/plop).
 Install it globally: `npm i -g nuxt-generate`.
 
 ## Commands
-### g component MyComponent
+### nuxt-generate component MyComponent
 
-Generate the a `vue` file with the following options:
+Generate a `vue` file with the following options:
 * Use Typescript: If selected, the generate component will be based on `vue-class-component`, or `nuxt-class-component` if Nuxt if checked.
 * Use Nuxt: See above.
 * Use a store: If typescript is selected, the component will be generated with imports from `vuex-class`.
@@ -82,9 +82,9 @@ export default class MyComponent extends Vue {
 <style lang="scss">
 </style>
 ```
-### g module MyModule
+### nuxt-generate module MyModule
 
-This is opinionated. This command generates a module based on [`nuxt-modular`](https://github.com/cknow/nuxt-modular) structure. It generates:
+This opinionated command generates a module based on [`nuxt-modular`](https://github.com/cknow/nuxt-modular) structure. It generates:
 * `pages/index.vue`
 * and the following folders: `components`, `middleware`, `store`.
 
