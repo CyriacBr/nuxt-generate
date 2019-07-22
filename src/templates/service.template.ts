@@ -1,18 +1,18 @@
 import { isTypeORM } from '../helper';
 
-export default ({ cli, cName, dName }: any) => `
+export default ({ cli, cName, dName, entityName }: any) => `
     ${isTypeORM(cli) &&
       `
       import { InjectRepository } from '@nestjs/typeorm';
       import { Repository } from 'typeorm';`
     }
     import { Injectable } from '@nestjs/common';
-    import { ${cName} } from './${dName}.entity';
+    import { ${entityName} } from './${dName}.entity';
 
     @Injectable()
     export class ${cName}Service {
         constructor(
-            @InjectRepository(${cName})
+            @InjectRepository(${entityName})
             private readonly repository: Repository<${cName}>,
         ) {}
 
@@ -24,13 +24,13 @@ export default ({ cli, cName, dName }: any) => `
             return this.repository.findOne(id);
         }
 
-        create(data: ${cName}) {
-            const item = new ${cName}();
+        create(data: ${entityName}) {
+            const item = new ${entityName}();
             item.foo = 'bar';
             return this.repository.save(item);
         }
 
-        update(id: number, data: ${cName}) {
+        update(id: number, data: ${entityName}) {
             return this.repository.update(id, data);
         }
 

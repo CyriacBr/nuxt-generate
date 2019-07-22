@@ -1,9 +1,9 @@
 import { isTypeORM } from '../helper';
 
-export default ({ cli, cName, dName }: any) => `
+export default ({ cli, cName, dName, entityName }: any) => `
     import { Controller, Param, Body, Get, Post, Put, Patch, Delete } from '@nestjs/common';
     import { ${cName}Service } from './${dName}.service';
-    import { ${cName} } from './${dName}.entity';
+    import { ${entityName} } from './${dName}.entity';
 
     @Controller('${dName}')
     export class ${cName}Controller {
@@ -20,13 +20,13 @@ export default ({ cli, cName, dName }: any) => `
         }
 
         @Post()
-        create(@Body() data: ${cName}) {
+        create(@Body() data: ${entityName}) {
             return this.service.create(data);
         }
 
         @Put(':id')
         @Patch(':id')
-        update(@Param('id') id: string, @Body() data: ${cName}) {
+        update(@Param('id') id: string, @Body() data: ${entityName}) {
             return this.service.update(Number(id), data);
         }
 
