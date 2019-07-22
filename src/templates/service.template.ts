@@ -13,7 +13,7 @@ export default ({ cli, cName, dName, entityName }: any) => `
     export class ${cName}Service {
         constructor(
             @InjectRepository(${entityName})
-            private readonly repository: Repository<${cName}>,
+            private readonly repository: Repository<${entityName}>,
         ) {}
 
         findAll() {

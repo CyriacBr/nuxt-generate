@@ -214,7 +214,7 @@ var tslib_1 = /*#__PURE__*/Object.freeze({
     __importDefault: __importDefault
 });
 
-var version = "1.0.0";
+var version = "0.0.2";
 
 var NestGenerator = /** @class */ (function () {
     function NestGenerator() {
@@ -253,8 +253,8 @@ function prettyPrint(str) {
 }
 
 var entityTemplate = (function (_a) {
-    var cli = _a.cli, cName = _a.cName, dName = _a.dName;
-    return "\n    " + (isTypeORM(cli) && "import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm'") + "\n    import { IsNotEmpty } from 'class-validator';\n    \n    " + (isTypeORM(cli) && '@Entity()') + "\n    export class " + cName + " {\n        " + (isTypeORM(cli) && '@PrimaryGeneratedColumn()') + "\n        id: number;\n        \n        " + (isTypeORM(cli) && '@Column()') + "\n        @IsNotEmpty()\n        foo: string;\n    }\n";
+    var cli = _a.cli, cName = _a.cName, dName = _a.dName, entityName = _a.entityName;
+    return "\n    " + (isTypeORM(cli) && "import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm'") + "\n    import { IsNotEmpty } from 'class-validator';\n    \n    " + (isTypeORM(cli) && '@Entity()') + "\n    export class " + entityName + " {\n        " + (isTypeORM(cli) && '@PrimaryGeneratedColumn()') + "\n        id: number;\n        \n        " + (isTypeORM(cli) && '@Column()') + "\n        @IsNotEmpty()\n        foo: string;\n    }\n";
 });
 
 var HandlerBase = /** @class */ (function () {
@@ -284,19 +284,23 @@ var EntityHandler = /** @class */ (function (_super) {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     EntityHandler.makeContent = function (moduleName, cli) {
+        var entityName = moduleName.endsWith('s')
+            ? moduleName.substr(0, moduleName.length - 1)
+            : moduleName;
         return prettyPrint(entityTemplate({
             cli: cli,
             cName: capitalize(moduleName),
-            dName: dasherize(moduleName)
+            dName: dasherize(moduleName),
+            entityName: capitalize(entityName)
         }));
     };
     return EntityHandler;
 }(HandlerBase));
 
 var serviceTemplate = (function (_a) {
-    var cli = _a.cli, cName = _a.cName, dName = _a.dName;
+    var cli = _a.cli, cName = _a.cName, dName = _a.dName, entityName = _a.entityName;
     return "\n    " + (isTypeORM(cli) &&
-        "\n      import { InjectRepository } from '@nestjs/typeorm';\n      import { Repository } from 'typeorm';") + "\n    import { Injectable } from '@nestjs/common';\n    import { " + cName + " } from './" + dName + ".entity';\n\n    @Injectable()\n    export class " + cName + "Service {\n        constructor(\n            @InjectRepository(" + cName + ")\n            private readonly repository: Repository<" + cName + ">,\n        ) {}\n\n        findAll() {\n            return this.repository.find();\n        }\n\n        findById(id: number) {\n            return this.repository.findOne(id);\n        }\n\n        create(data: " + cName + ") {\n            const item = new " + cName + "();\n            item.foo = 'bar';\n            return this.repository.save(item);\n        }\n\n        update(id: number, data: " + cName + ") {\n            return this.repository.update(id, data);\n        }\n\n        delete(id: number) {\n            return this.repository.delete(id);\n        }\n    }\n";
+        "\n      import { InjectRepository } from '@nestjs/typeorm';\n      import { Repository } from 'typeorm';") + "\n    import { Injectable } from '@nestjs/common';\n    import { " + entityName + " } from './" + dName + ".entity';\n\n    @Injectable()\n    export class " + cName + "Service {\n        constructor(\n            @InjectRepository(" + entityName + ")\n            private readonly repository: Repository<" + cName + ">,\n        ) {}\n\n        findAll() {\n            return this.repository.find();\n        }\n\n        findById(id: number) {\n            return this.repository.findOne(id);\n        }\n\n        create(data: " + entityName + ") {\n            const item = new " + entityName + "();\n            item.foo = 'bar';\n            return this.repository.save(item);\n        }\n\n        update(id: number, data: " + entityName + ") {\n            return this.repository.update(id, data);\n        }\n\n        delete(id: number) {\n            return this.repository.delete(id);\n        }\n    }\n";
 });
 
 var ServiceHandler = /** @class */ (function (_super) {
@@ -305,18 +309,22 @@ var ServiceHandler = /** @class */ (function (_super) {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     ServiceHandler.makeContent = function (moduleName, cli) {
+        var entityName = moduleName.endsWith('s')
+            ? moduleName.substr(0, moduleName.length - 1)
+            : moduleName;
         return prettyPrint(serviceTemplate({
             cli: cli,
             cName: capitalize(moduleName),
-            dName: dasherize(moduleName)
+            dName: dasherize(moduleName),
+            entityName: capitalize(entityName)
         }));
     };
     return ServiceHandler;
 }(HandlerBase));
 
 var controllerTemplate = (function (_a) {
-    var cli = _a.cli, cName = _a.cName, dName = _a.dName;
-    return "\n    import { Controller, Param, Body, Get, Post, Put, Patch, Delete } from '@nestjs/common';\n    import { " + cName + "Service } from './" + dName + ".service';\n    import { " + cName + " } from './" + dName + ".entity';\n\n    @Controller('" + dName + "')\n    export class " + cName + "Controller {\n        constructor(private readonly service: " + cName + "Service) {}\n\n        @Get()\n        findAll() {\n            return this.service.findAll();\n        }\n\n        @Get(':id')\n        findById(@Param('id') id: string) {\n            return this.service.findById(Number(id));\n        }\n\n        @Post()\n        create(@Body() data: " + cName + ") {\n            return this.service.create(data);\n        }\n\n        @Put(':id')\n        @Patch(':id')\n        update(@Param('id') id: string, @Body() data: " + cName + ") {\n            return this.service.update(Number(id), data);\n        }\n\n        @Delete(':id')\n        delete(@Param('id') id: string) {\n            return this.service.delete(Number(id));\n        }\n    }\n";
+    var cli = _a.cli, cName = _a.cName, dName = _a.dName, entityName = _a.entityName;
+    return "\n    import { Controller, Param, Body, Get, Post, Put, Patch, Delete } from '@nestjs/common';\n    import { " + cName + "Service } from './" + dName + ".service';\n    import { " + entityName + " } from './" + dName + ".entity';\n\n    @Controller('" + dName + "')\n    export class " + cName + "Controller {\n        constructor(private readonly service: " + cName + "Service) {}\n\n        @Get()\n        findAll() {\n            return this.service.findAll();\n        }\n\n        @Get(':id')\n        findById(@Param('id') id: string) {\n            return this.service.findById(Number(id));\n        }\n\n        @Post()\n        create(@Body() data: " + entityName + ") {\n            return this.service.create(data);\n        }\n\n        @Put(':id')\n        @Patch(':id')\n        update(@Param('id') id: string, @Body() data: " + entityName + ") {\n            return this.service.update(Number(id), data);\n        }\n\n        @Delete(':id')\n        delete(@Param('id') id: string) {\n            return this.service.delete(Number(id));\n        }\n    }\n";
 });
 
 var ControllerHandler = /** @class */ (function (_super) {
@@ -325,18 +333,22 @@ var ControllerHandler = /** @class */ (function (_super) {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     ControllerHandler.makeContent = function (moduleName, cli) {
+        var entityName = moduleName.endsWith('s')
+            ? moduleName.substr(0, moduleName.length - 1)
+            : moduleName;
         return prettyPrint(controllerTemplate({
             cli: cli,
             cName: capitalize(moduleName),
-            dName: dasherize(moduleName)
+            dName: dasherize(moduleName),
+            entityName: capitalize(entityName)
         }));
     };
     return ControllerHandler;
 }(HandlerBase));
 
 var moduleTemplate = (function (_a) {
-    var cli = _a.cli, cName = _a.cName, dName = _a.dName;
-    return "\n    import { Module } from '@nestjs/common';\n    import { " + cName + "Service } from './" + dName + ".service';\n    import { " + cName + "Controller } from './" + dName + ".controller';\n    " + (isTypeORM(cli) && "import { TypeOrmModule } from '@nestjs/typeorm';") + "\n    import { " + cName + " } from './" + dName + ".entity';\n\n    @Module({\n        imports: [" + (isTypeORM(cli) && "TypeOrmModule.forFeature([" + cName + "])") + "],\n        providers: [" + cName + "Service],\n        controllers: [" + cName + "Controller],\n    })\n    export class " + cName + "Module {}\n";
+    var cli = _a.cli, cName = _a.cName, dName = _a.dName, entityName = _a.entityName;
+    return "\n    import { Module } from '@nestjs/common';\n    import { " + cName + "Service } from './" + dName + ".service';\n    import { " + cName + "Controller } from './" + dName + ".controller';\n    " + (isTypeORM(cli) && "import { TypeOrmModule } from '@nestjs/typeorm';") + "\n    import { " + entityName + " } from './" + dName + ".entity';\n\n    @Module({\n        imports: [" + (isTypeORM(cli) && "TypeOrmModule.forFeature([" + entityName + "])") + "],\n        providers: [" + cName + "Service],\n        controllers: [" + cName + "Controller],\n    })\n    export class " + cName + "Module {}\n";
 });
 
 var ModuleHandler = /** @class */ (function (_super) {
@@ -345,10 +357,14 @@ var ModuleHandler = /** @class */ (function (_super) {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     ModuleHandler.makeContent = function (moduleName, cli) {
+        var entityName = moduleName.endsWith('s')
+            ? moduleName.substr(0, moduleName.length - 1)
+            : moduleName;
         return prettyPrint(moduleTemplate({
             cli: cli,
             cName: capitalize(moduleName),
-            dName: dasherize(moduleName)
+            dName: dasherize(moduleName),
+            entityName: capitalize(entityName)
         }));
     };
     return ModuleHandler;
