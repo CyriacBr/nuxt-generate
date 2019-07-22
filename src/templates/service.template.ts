@@ -25,9 +25,7 @@ export default ({ cli, cName, dName, entityName }: any) => `
         }
 
         create(data: ${entityName}) {
-            const item = new ${entityName}();
-            item.foo = 'bar';
-            return this.repository.save(item);
+            return this.repository.save(data);
         }
 
         update(id: number, data: ${entityName}) {
