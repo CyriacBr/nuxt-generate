@@ -1,21 +1,41 @@
 {
-  "name": "nuxt-generate",
-  "version": "0.0.0",
-  "description": "Generate standard nuxt files",
-  "main": "script.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "name": "nest-g-crud",
+  "version": "0.0.1",
+  "description": "",
+  "main": "dist/script.js",
+  "files": [
+    "dist"
+  ],
+  "types": "dist/src/script.d.ts",
+  "bin": {
+    "nest-g-crud": "dist/script.js"
   },
-  "author": "CyriacBr",
+  "preferGlobal": true,
+  "scripts": {
+    "build": "rm -rf dist && rollup -c",
+    "watch": "rollup -cw",
+    "test": "jest"
+  },
+  "author": "CyriacBr <cyriacbr@gmail.com>",
+  "repository": {
+    "type": "github",
+    "url": "https://github.com/CyriacBr/nest-g-crud.git"
+  },
   "license": "MIT",
   "devDependencies": {
-    "plop": "^2.2.0"
+    "@types/jest": "^24.0.11",
+    "jest": "^24.5.0",
+    "prettier": "1.17.1",
+    "rollup": "^1.1.2",
+    "rollup-plugin-json": "^4.0.0",
+    "rollup-plugin-typescript2": "^0.20.1",
+    "ts-jest": "^24.0.0"
   },
   "dependencies": {
-    "node-plop": "^0.17.3"
-  },
-  "bin": {
-    "nuxt-generate": "script.js"
-  },
-  "preferGlobal": true
+    "@types/node": "^11.10.5",
+    "commander": "^2.19.0",
+    "inquirer": "^6.3.1",
+    "ora": "^3.4.0",
+    "typescript": "^3.4.5"
+  }
 }
