@@ -214,7 +214,7 @@ var tslib_1 = /*#__PURE__*/Object.freeze({
     __importDefault: __importDefault
 });
 
-var version = "0.0.2";
+var version = "0.0.3";
 
 var NestGenerator = /** @class */ (function () {
     function NestGenerator() {
@@ -300,7 +300,7 @@ var EntityHandler = /** @class */ (function (_super) {
 var serviceTemplate = (function (_a) {
     var cli = _a.cli, cName = _a.cName, dName = _a.dName, entityName = _a.entityName;
     return "\n    " + (isTypeORM(cli) &&
-        "\n      import { InjectRepository } from '@nestjs/typeorm';\n      import { Repository } from 'typeorm';") + "\n    import { Injectable } from '@nestjs/common';\n    import { " + entityName + " } from './" + dName + ".entity';\n\n    @Injectable()\n    export class " + cName + "Service {\n        constructor(\n            @InjectRepository(" + entityName + ")\n            private readonly repository: Repository<" + cName + ">,\n        ) {}\n\n        findAll() {\n            return this.repository.find();\n        }\n\n        findById(id: number) {\n            return this.repository.findOne(id);\n        }\n\n        create(data: " + entityName + ") {\n            const item = new " + entityName + "();\n            item.foo = 'bar';\n            return this.repository.save(item);\n        }\n\n        update(id: number, data: " + entityName + ") {\n            return this.repository.update(id, data);\n        }\n\n        delete(id: number) {\n            return this.repository.delete(id);\n        }\n    }\n";
+        "\n      import { InjectRepository } from '@nestjs/typeorm';\n      import { Repository } from 'typeorm';") + "\n    import { Injectable } from '@nestjs/common';\n    import { " + entityName + " } from './" + dName + ".entity';\n\n    @Injectable()\n    export class " + cName + "Service {\n        constructor(\n            @InjectRepository(" + entityName + ")\n            private readonly repository: Repository<" + entityName + ">,\n        ) {}\n\n        findAll() {\n            return this.repository.find();\n        }\n\n        findById(id: number) {\n            return this.repository.findOne(id);\n        }\n\n        create(data: " + entityName + ") {\n            return this.repository.save(data);\n        }\n\n        update(id: number, data: " + entityName + ") {\n            return this.repository.update(id, data);\n        }\n\n        delete(id: number) {\n            return this.repository.delete(id);\n        }\n    }\n";
 });
 
 var ServiceHandler = /** @class */ (function (_super) {

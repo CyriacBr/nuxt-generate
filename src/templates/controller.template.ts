@@ -24,15 +24,31 @@ export default ({ cli, cName, dName, entityName }: any) => `
             return this.service.create(data);
         }
 
+        @Post('bulk')
+        createBulk(@Body() data: Array<${entityName}>) {
+          return this.service.createBulk(data);
+        }
+
         @Put(':id')
         @Patch(':id')
         update(@Param('id') id: string, @Body() data: ${entityName}) {
             return this.service.update(Number(id), data);
         }
 
+        @Put('bulk')
+        @Patch('bulk')
+        updateBulk(@Body() data: Array<${entityName}>) {
+          return this.service.updateBulk(data);
+        }
+
         @Delete(':id')
         delete(@Param('id') id: string) {
             return this.service.delete(Number(id));
+        }
+
+        @Delete('bulk/:ids')
+        deleteBulk(@Param('ids') idList: string) {
+          return this.service.deleteBulk(idList);
         }
     }
 `;
