@@ -214,7 +214,7 @@ var tslib_1 = /*#__PURE__*/Object.freeze({
     __importDefault: __importDefault
 });
 
-var version = "0.0.3";
+var version = "0.0.5";
 
 var NestGenerator = /** @class */ (function () {
     function NestGenerator() {
@@ -300,7 +300,7 @@ var EntityHandler = /** @class */ (function (_super) {
 var serviceTemplate = (function (_a) {
     var cli = _a.cli, cName = _a.cName, dName = _a.dName, entityName = _a.entityName;
     return "\n    " + (isTypeORM(cli) &&
-        "\n      import { InjectRepository } from '@nestjs/typeorm';\n      import { Repository } from 'typeorm';") + "\n    import { Injectable } from '@nestjs/common';\n    import { " + entityName + " } from './" + dName + ".entity';\n\n    @Injectable()\n    export class " + cName + "Service {\n        constructor(\n            @InjectRepository(" + entityName + ")\n            private readonly repository: Repository<" + entityName + ">,\n        ) {}\n\n        findAll() {\n            return this.repository.find();\n        }\n\n        findById(id: number) {\n            return this.repository.findOne(id);\n        }\n\n        create(data: " + entityName + ") {\n            return this.repository.save(data);\n        }\n\n        update(id: number, data: " + entityName + ") {\n            return this.repository.update(id, data);\n        }\n\n        delete(id: number) {\n            return this.repository.delete(id);\n        }\n    }\n";
+        "\n      import { InjectRepository } from '@nestjs/typeorm';\n      import { Repository, UpdateResult } from 'typeorm';") + "\n    import { Injectable } from '@nestjs/common';\n    import { " + entityName + " } from './" + dName + ".entity';\n\n    @Injectable()\n    export class " + cName + "Service {\n        constructor(\n            @InjectRepository(" + entityName + ")\n            private readonly repository: Repository<" + entityName + ">,\n        ) {}\n\n        findAll() {\n            return this.repository.find();\n        }\n\n        findById(id: number) {\n            return this.repository.findOne(id);\n        }\n\n        create(data: " + entityName + ") {\n            return this.repository.save(data);\n        }\n\n        createBulk(data: " + entityName + "[]) {\n          const tasks: Array<Promise<" + entityName + ">> = [];\n          for (const item of data) {\n            tasks.push(this.repository.save(item));\n          }\n          try {\n            return Promise.all(tasks);\n          } catch (error) {\n            throw error;\n          }\n        }\n\n        update(id: number, data: " + entityName + ") {\n            return this.repository.update(id, data);\n        }\n\n        updateBulk(data: " + entityName + "[]) {\n          const tasks: Array<Promise<UpdateResult>> = [];\n          for (const item of data) {\n            tasks.push(this.repository.update(item.id, item));\n          }\n          try {\n            return Promise.all(tasks);\n          } catch (error) {\n            throw error;\n          }\n        }\n\n        delete(id: number) {\n            return this.repository.delete(id);\n        }\n\n        deleteBulk(idList: string) {\n          const ids = idList.split(/D/).map(value => parseInt(value, 10));\n          return this.repository\n            .createQueryBuilder()\n            .delete()\n            .from(" + entityName + ")\n            .whereInIds(ids)\n            .execute();\n        }\n    }\n";
 });
 
 var ServiceHandler = /** @class */ (function (_super) {
@@ -324,7 +324,7 @@ var ServiceHandler = /** @class */ (function (_super) {
 
 var controllerTemplate = (function (_a) {
     var cli = _a.cli, cName = _a.cName, dName = _a.dName, entityName = _a.entityName;
-    return "\n    import { Controller, Param, Body, Get, Post, Put, Patch, Delete } from '@nestjs/common';\n    import { " + cName + "Service } from './" + dName + ".service';\n    import { " + entityName + " } from './" + dName + ".entity';\n\n    @Controller('" + dName + "')\n    export class " + cName + "Controller {\n        constructor(private readonly service: " + cName + "Service) {}\n\n        @Get()\n        findAll() {\n            return this.service.findAll();\n        }\n\n        @Get(':id')\n        findById(@Param('id') id: string) {\n            return this.service.findById(Number(id));\n        }\n\n        @Post()\n        create(@Body() data: " + entityName + ") {\n            return this.service.create(data);\n        }\n\n        @Put(':id')\n        @Patch(':id')\n        update(@Param('id') id: string, @Body() data: " + entityName + ") {\n            return this.service.update(Number(id), data);\n        }\n\n        @Delete(':id')\n        delete(@Param('id') id: string) {\n            return this.service.delete(Number(id));\n        }\n    }\n";
+    return "\n    import { Controller, Param, Body, Get, Post, Put, Patch, Delete } from '@nestjs/common';\n    import { " + cName + "Service } from './" + dName + ".service';\n    import { " + entityName + " } from './" + dName + ".entity';\n\n    @Controller('" + dName + "')\n    export class " + cName + "Controller {\n        constructor(private readonly service: " + cName + "Service) {}\n\n        @Get()\n        findAll() {\n            return this.service.findAll();\n        }\n\n        @Get(':id')\n        findById(@Param('id') id: string) {\n            return this.service.findById(Number(id));\n        }\n\n        @Post()\n        create(@Body() data: " + entityName + ") {\n            return this.service.create(data);\n        }\n\n        @Post('bulk')\n        createBulk(@Body() data: Array<" + entityName + ">) {\n          return this.service.createBulk(data);\n        }\n\n        @Put(':id')\n        @Patch(':id')\n        update(@Param('id') id: string, @Body() data: " + entityName + ") {\n            return this.service.update(Number(id), data);\n        }\n\n        @Put('bulk')\n        @Patch('bulk')\n        updateBulk(@Body() data: Array<" + entityName + ">) {\n          return this.service.updateBulk(data);\n        }\n\n        @Delete(':id')\n        delete(@Param('id') id: string) {\n            return this.service.delete(Number(id));\n        }\n\n        @Delete('bulk/:ids')\n        deleteBulk(@Param('ids') idList: string) {\n          return this.service.deleteBulk(idList);\n        }\n    }\n";
 });
 
 var ControllerHandler = /** @class */ (function (_super) {
@@ -374,7 +374,7 @@ var ora = require('ora');
 var basePath = process.cwd();
 cli.version(version)
     .option('-d, --dto', 'Use and generate DTOs')
-    .option('-o, --orm <orm>', 'Process all files in the directory and output a single d.ts')
+    .option('-o, --orm <orm>', 'Specify the ORM. Currently only supports typeorm')
     .option('-e, --entity', 'Prompt for entity fields')
     .arguments('<name>')
     .action(function (name) {

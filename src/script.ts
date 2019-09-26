@@ -11,7 +11,7 @@ const basePath = process.cwd();
 cli
   .version(pkg.version)
   .option('-d, --dto', 'Use and generate DTOs')
-  .option('-o, --orm <orm>', 'Process all files in the directory and output a single d.ts')
+  .option('-o, --orm <orm>', 'Specify the ORM. Currently only supports typeorm')
   .option('-e, --entity', 'Prompt for entity fields')
   .arguments('<name>')
   .action(function(name) {

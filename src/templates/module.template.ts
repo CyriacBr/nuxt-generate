@@ -11,6 +11,7 @@ export default ({ cli, cName, dName, entityName }: any) => `
         imports: [${isTypeORM(cli) && `TypeOrmModule.forFeature([${entityName}])`}],
         providers: [${cName}Service],
         controllers: [${cName}Controller],
+        exports: [${cName}Service${isTypeORM(cli) && `, TypeOrmModule`}]
     })
     export class ${cName}Module {}
 `;
